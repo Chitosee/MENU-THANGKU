@@ -177,6 +177,41 @@ menuButton5.MouseButton1Click:Connect(function()
         menuButton5.Text = "ANTI AFK: OFF"
         menuButton5.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
     end
+end)        menuButton4.Text = "AUTO BUY FISH: ON"
+        menuButton4.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
+        buyOnce("Fish")
+        player.CharacterAdded:Connect(function()
+            if autoBuyFish then
+                task.wait(1)
+                buyOnce("Fish")
+            end
+        end)
+    else
+        menuButton4.Text = "AUTO BUY FISH: OFF"
+        menuButton4.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
+    end
+end)
+
+-------------------------------------------------
+-- 5. Anti AFK
+local antiAfk = false
+local menuButton5 = createButton("ANTI AFK: OFF", 5)
+menuButton5.MouseButton1Click:Connect(function()
+    antiAfk = not antiAfk
+    if antiAfk then
+        menuButton5.Text = "ANTI AFK: ON"
+        menuButton5.BackgroundColor3 = Color3.fromRGB(150, 200, 70)
+        player.Idled:Connect(function()
+            if antiAfk then
+                VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            end
+        end)
+    else
+        menuButton5.Text = "ANTI AFK: OFF"
+        menuButton5.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
+    end
 end)    autoBuyFoodDrink = not autoBuyFoodDrink
     if autoBuyFoodDrink then
         menuButton3.Text = "AUTO BUY MAKAN MINUM: ON"
