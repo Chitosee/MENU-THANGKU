@@ -122,18 +122,18 @@ menuButton3.MouseButton1Click:Connect(function()
                 burger.Parent = player.Character
                 task.wait(0.5)
                 burger:Activate()
-                task.wait(2) -- 🔹 delay biar ga tabrakan
+                task.wait(1) -- 🔹 delay biar ga tabrakan
             end
 
             -- beli Water
-            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer("water")
+            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer("Water")
             task.wait(0.5)
-            local water = player.Backpack:FindFirstChild("water")
-            if water then
-                water.Parent = player.Character
+            local Water = player.Backpack:FindFirstChild("Water")
+            if Water then
+                Water.Parent = player.Character
                 task.wait(0.5)
                 water:Activate()
-                task.wait(2) -- 🔹 delay habis minum
+                task.wait(1) -- 🔹 delay habis minum
             end
         end
 
