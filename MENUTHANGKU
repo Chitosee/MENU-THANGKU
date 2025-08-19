@@ -1,53 +1,45 @@
---// Services
+--// SERVICES
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
 
---// Screen GUI
+--// GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "MenuGui"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = player:WaitForChild("PlayerGui")
 
---// Frame
-local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 250, 0, 300)
-mainFrame.Position = UDim2.new(0.05, 0, 0.3, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-mainFrame.BackgroundTransparency = 0.2
-mainFrame.Active = true
-mainFrame.Draggable = true
-mainFrame.Parent = screenGui
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 250, 0, 330)
+frame.Position = UDim2.new(0, 20, 0.5, -165)
+frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
 
---// UI Corner
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 10)
-UICorner.Parent = mainFrame
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+title.Text = "⚡ AUTO FARM MENU ⚡"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = frame
 
---// Layout
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Padding = UDim.new(0, 5)
-UIListLayout.FillDirection = Enum.FillDirection.Vertical
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
-UIListLayout.Parent = mainFrame
-
---// Button Creator
-local function createButton(text)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 220, 0, 40)
-    btn.BackgroundColor3 = Color3.fromRGB(70, 150, 200)
-    btn.Text = text
-    btn.TextColor3 = Color3.new(1,1,1)
-    btn.Font = Enum.Font.SourceSansBold
-    btn.TextSize = 18
-    btn.Parent = mainFrame
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 8)
-    corner.Parent = btn
-    return btn
+-- Fungsi buat tombol
+local function createButton(name)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(1, -20, 0, 40)
+    button.Position = UDim2.new(0, 10, 0, #frame:GetChildren() * 45)
+    button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.SourceSansBold
+    button.TextSize = 16
+    button.Text = name
+    button.Parent = frame
+    return button
 end
 
 -------------------------------------------------
@@ -72,7 +64,6 @@ menuButton1.MouseButton1Click:Connect(function()
                 end
             end
         end)
-
     else
         menuButton1.Text = "AUTO FISH: OFF"
         menuButton1.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
@@ -81,38 +72,37 @@ menuButton1.MouseButton1Click:Connect(function()
 end)
 
 -------------------------------------------------
--- 2. Auto Buy Anti Fall
-local autoBuyAntiFall = false
+-- 2. Auto Buy Anti Fall saat Respawn
+local autoAntiFall = false
 local menuButton2 = createButton("AUTO BUY ANTI FALL: OFF")
 
 menuButton2.MouseButton1Click:Connect(function()
-    autoBuyAntiFall = not autoBuyAntiFall
-    if autoBuyAntiFall then
+    autoAntiFall = not autoAntiFall
+    if autoAntiFall then
         menuButton2.Text = "AUTO BUY ANTI FALL: ON"
         menuButton2.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
 
-        -- auto beli pas respawn
+        local function buyAntiFall()
+            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer("Anti Fall Damage")
+        end
+
+        -- auto beli setiap respawn
         player.CharacterAdded:Connect(function()
-            if autoBuyAntiFall then
+            if autoAntiFall then
                 task.wait(1)
-                local args = {"Anti Fall Damage"}
-                ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(unpack(args))
+                buyAntiFall()
             end
         end)
 
-        -- beli langsung sekali
-        local args = {"Anti Fall Damage"}
-        ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(unpack(args))
-
+        buyAntiFall()
     else
         menuButton2.Text = "AUTO BUY ANTI FALL: OFF"
-        menuButton2.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
-        autoBuyAntiFall = false
+        menuButton2.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
     end
 end)
 
 -------------------------------------------------
--- 3. Auto Buy + Use Makan Minum
+-- 3. Auto Buy + Use Makan/Minum (5 menit sekali)
 local autoBuyFoodDrink = false
 local autoBuyFoodDrinkLoop
 local menuButton3 = createButton("AUTO BUY MAKAN MINUM: OFF")
@@ -125,33 +115,32 @@ menuButton3.MouseButton1Click:Connect(function()
 
         local function buyAndUseFoodDrink()
             -- beli Burger
-            local args1 = {"Burger"}
-            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(unpack(args1))
+            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer("Burger")
             task.wait(0.5)
             local burger = player.Backpack:FindFirstChild("Burger")
             if burger then
                 burger.Parent = player.Character
-                task.wait(0.2)
+                task.wait(0.5)
                 burger:Activate()
+                task.wait(2) -- 🔹 delay biar ga tabrakan
             end
 
             -- beli Water
-            local args2 = {"water"}
-            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(unpack(args2))
+            ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer("water")
             task.wait(0.5)
             local water = player.Backpack:FindFirstChild("water")
             if water then
                 water.Parent = player.Character
-                task.wait(0.2)
+                task.wait(0.5)
                 water:Activate()
+                task.wait(2) -- 🔹 delay habis minum
             end
         end
 
-        -- loop tiap 5 menit
         autoBuyFoodDrinkLoop = task.spawn(function()
             while autoBuyFoodDrink do
                 buyAndUseFoodDrink()
-                for i = 1, 300 do
+                for i = 1, 300 do -- 300 detik = 5 menit
                     if not autoBuyFoodDrink then break end
                     task.wait(1)
                 end
@@ -168,31 +157,30 @@ end)
 
 -------------------------------------------------
 -- 4. Anti AFK
-local antiAFK = false
+local antiAfk = false
 local menuButton4 = createButton("ANTI AFK: OFF")
 
 menuButton4.MouseButton1Click:Connect(function()
-    antiAFK = not antiAFK
-    if antiAFK then
+    antiAfk = not antiAfk
+    if antiAfk then
         menuButton4.Text = "ANTI AFK: ON"
         menuButton4.BackgroundColor3 = Color3.fromRGB(150, 200, 70)
 
         player.Idled:Connect(function()
-            if antiAFK then
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton2(Vector2.new())
+            if antiAfk then
+                VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
             end
         end)
-
     else
         menuButton4.Text = "ANTI AFK: OFF"
         menuButton4.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
-        antiAFK = false
     end
 end)
 
 -------------------------------------------------
--- 5. Auto Farm Ikan
+-- 5. Auto Farm Ikan (beli & pakai terus)
 local autoFarmIkan = false
 local autoFarmLoop
 local menuButton5 = createButton("AUTO FARM IKAN: OFF")
@@ -205,22 +193,21 @@ menuButton5.MouseButton1Click:Connect(function()
 
         autoFarmLoop = task.spawn(function()
             while autoFarmIkan do
-                local args = {"Fish"}
-                ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(unpack(args))
+                -- beli ikan
+                ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer("Fish")
                 task.wait(0.5)
+
+                -- pakai ikan kalau ada
                 local ikan = player.Backpack:FindFirstChild("Fish")
                 if ikan then
                     ikan.Parent = player.Character
-                    task.wait(0.2)
+                    task.wait(0.5)
                     ikan:Activate()
                 end
-                for i = 1, 2 do
-                    if not autoFarmIkan then break end
-                    task.wait(1)
-                end
+
+                task.wait(2) -- delay loop biar ga terlalu spam
             end
         end)
-
     else
         menuButton5.Text = "AUTO FARM IKAN: OFF"
         menuButton5.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
