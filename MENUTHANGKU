@@ -42,18 +42,15 @@ local function createButton(name, order)
     return button
 end
 
--- Fungsi beli 1 item saja (cek dulu)
+-- Fungsi beli 1x
 local function buyOnce(itemName)
-    if not player.Backpack:FindFirstChild(itemName) and not player.Character:FindFirstChild(itemName) then
-        ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(itemName)
-    end
+    ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(itemName)
 end
 
 -------------------------------------------------
--- 1. Auto Fish (Complete Minigame)
+-- 1. Auto Fish
 local autoFish = false
 local menuButton1 = createButton("AUTO FISH: OFF", 1)
-
 menuButton1.MouseButton1Click:Connect(function()
     autoFish = not autoFish
     if autoFish then
@@ -62,7 +59,7 @@ menuButton1.MouseButton1Click:Connect(function()
         task.spawn(function()
             while autoFish do
                 task.wait()
-                local rod = player.Character:FindFirstChild("NormalRod")
+                local rod = player.Character and player.Character:FindFirstChild("NormalRod")
                 if rod and rod:FindFirstChild("MiniGame") then
                     rod.MiniGame:FireServer("Complete")
                 end
@@ -75,16 +72,14 @@ menuButton1.MouseButton1Click:Connect(function()
 end)
 
 -------------------------------------------------
--- 2. Auto Buy Anti Fall
+-- 2. Auto Buy Anti Fall (1x tiap respawn)
 local autoAntiFall = false
 local menuButton2 = createButton("AUTO BUY ANTI FALL: OFF", 2)
-
 menuButton2.MouseButton1Click:Connect(function()
     autoAntiFall = not autoAntiFall
     if autoAntiFall then
         menuButton2.Text = "AUTO BUY ANTI FALL: ON"
-        menuButton2.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
-
+        menuButton2.BackgroundColor3 = Color3.fromRGB(150, 200, 70)
         buyOnce("Anti Fall Damage")
         player.CharacterAdded:Connect(function()
             if autoAntiFall then
@@ -94,17 +89,95 @@ menuButton2.MouseButton1Click:Connect(function()
         end)
     else
         menuButton2.Text = "AUTO BUY ANTI FALL: OFF"
-        menuButton2.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
+        menuButton2.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
     end
 end)
 
 -------------------------------------------------
--- 3. Auto Buy + Use Makan/Minum
-local autoBuyFoodDrink = false
+-- 3. Auto Buy + Use Makan/Minum (loop 10 detik)
+local autoFoodDrink = false
 local menuButton3 = createButton("AUTO BUY MAKAN MINUM: OFF", 3)
-
 menuButton3.MouseButton1Click:Connect(function()
-    autoBuyFoodDrink = not autoBuyFoodDrink
+    autoFoodDrink = not autoFoodDrink
+    if autoFoodDrink then
+        menuButton3.Text = "AUTO BUY MAKAN MINUM: ON"
+        menuButton3.BackgroundColor3 = Color3.fromRGB(200, 150, 70)
+
+        task.spawn(function()
+            while autoFoodDrink do
+                -- Burger
+                buyOnce("Burger")
+                task.wait(0.5)
+                local burger = player.Backpack:FindFirstChild("Burger")
+                if burger then
+                    burger.Parent = player.Character
+                    task.wait(0.5)
+                    burger:Activate()
+                end
+
+                -- Water
+                buyOnce("Water")
+                task.wait(0.5)
+                local water = player.Backpack:FindFirstChild("Water")
+                if water then
+                    water.Parent = player.Character
+                    task.wait(0.5)
+                    water:Activate()
+                end
+
+                -- loop tiap 10 detik
+                task.wait(10)
+            end
+        end)
+    else
+        menuButton3.Text = "AUTO BUY MAKAN MINUM: OFF"
+        menuButton3.BackgroundColor3 = Color3.fromRGB(70, 150, 200)
+    end
+end)
+
+-------------------------------------------------
+-- 4. Auto Buy Fish (1x tiap respawn)
+local autoBuyFish = false
+local menuButton4 = createButton("AUTO BUY FISH: OFF", 4)
+menuButton4.MouseButton1Click:Connect(function()
+    autoBuyFish = not autoBuyFish
+    if autoBuyFish then
+        menuButton4.Text = "AUTO BUY FISH: ON"
+        menuButton4.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
+        buyOnce("Fish")
+        player.CharacterAdded:Connect(function()
+            if autoBuyFish then
+                task.wait(1)
+                buyOnce("Fish")
+            end
+        end)
+    else
+        menuButton4.Text = "AUTO BUY FISH: OFF"
+        menuButton4.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
+    end
+end)
+
+-------------------------------------------------
+-- 5. Anti AFK
+local antiAfk = false
+local menuButton5 = createButton("ANTI AFK: OFF", 5)
+menuButton5.MouseButton1Click:Connect(function()
+    antiAfk = not antiAfk
+    if antiAfk then
+        menuButton5.Text = "ANTI AFK: ON"
+        menuButton5.BackgroundColor3 = Color3.fromRGB(150, 200, 70)
+        player.Idled:Connect(function()
+            if antiAfk then
+                VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+            end
+        end)
+    else
+        menuButton5.Text = "ANTI AFK: OFF"
+        menuButton5.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
+    end
+end)    autoBuyFoodDrink = not autoBuyFoodDrink
     if autoBuyFoodDrink then
         menuButton3.Text = "AUTO BUY MAKAN MINUM: ON"
         menuButton3.BackgroundColor3 = Color3.fromRGB(200, 150, 70)
