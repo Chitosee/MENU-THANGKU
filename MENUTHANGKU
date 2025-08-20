@@ -123,15 +123,15 @@ menuButton3.MouseButton1Click:Connect(function()
                     end
                 end
 
-                -- Beli dan gunakan Water
-                buyOnce("Water")
+                -- Beli dan gunakan Air Minum
+                buyOnce("Air Minum")
                 task.wait(0.5)
-                local water = player.Backpack:FindFirstChild("Water")
-                if water then
-                    water.Parent = player.Character
+                local airMinum = player.Backpack:FindFirstChild("Air Minum")
+                if airMinum then
+                    airMinum.Parent = player.Character
                     task.wait(0.5)
-                    if water:IsA("Tool") then
-                        water:Activate()
+                    if airMinum:IsA("Tool") then
+                        airMinum:Activate()
                     end
                 end
 
