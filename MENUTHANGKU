@@ -4,61 +4,307 @@ local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
 
---// GUI
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "MenuGui"
-screenGui.ResetOnSpawn = false
-screenGui.Parent = player:WaitForChild("PlayerGui")
+--// FUNGSI INTI UNTUK MEMBUAT UI (MIRIP LIBRARY)
+local hub = {}
 
-local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 250, 0, 330)
-frame.Position = UDim2.new(0, 20, 0.5, -165)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.Active = true
-frame.Draggable = true
-frame.Parent = screenGui
+function hub:Window()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "GeminiHub"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = PlayerGui
 
-local title = Instance.new("TextLabel")
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-title.Text = "⚡ AUTO FARM MENU ⚡"
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 18
-title.Parent = frame
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Name = "Main"
+    mainFrame.Size = UDim2.new(0, 500, 0, 350)
+    mainFrame.Position = UDim2.new(0.5, -250, 0.5, -175)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    mainFrame.BorderColor3 = Color3.fromRGB(20, 20, 20)
+    mainFrame.BorderSizePixel = 1
+    mainFrame.Active = true
+    mainFrame.Draggable = true
+    mainFrame.Parent = screenGui
 
--- Fungsi buat tombol
-local function createButton(name, order)
-    local button = Instance.new("TextButton")
-    button.Size = UDim2.new(1, -20, 0, 40)
-    button.Position = UDim2.new(0, 10, 0, order * 45)
-    button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Font = Enum.Font.SourceSansBold
-    button.TextSize = 16
-    button.Text = name
-    button.Parent = frame
-    return button
+    local uiCorner = Instance.new("UICorner")
+    uiCorner.CornerRadius = UDim.new(0, 8)
+    uiCorner.Parent = mainFrame
+
+    local topBar = Instance.new("Frame")
+    topBar.Size = UDim2.new(1, 0, 0, 40)
+    topBar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    topBar.BorderColor3 = Color3.fromRGB(20, 20, 20)
+    topBar.BorderSizePixel = 1
+    topBar.Parent = mainFrame
+    topBar.Active = true
+    topBar.Draggable = true
+
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Name = "Title"
+    titleLabel.Size = UDim2.new(1, 0, 1, 0)
+    titleLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.Text = "🤍 MARCOO HUB 🤍"
+    titleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    titleLabel.Font = Enum.Font.SourceSansBold
+    titleLabel.TextSize = 20
+    titleLabel.Parent = topBar
+    
+    -- Efek warna-warni untuk judul
+    task.spawn(function()
+        while titleLabel.Parent do
+            for i = 0, 1, 0.01 do
+                titleLabel.TextColor3 = Color3.fromHSV(i, 1, 1)
+                task.wait(0.05)
+            end
+        end
+    end)
+
+    local tabBar = Instance.new("Frame")
+    tabBar.Name = "TabBar"
+    tabBar.Size = UDim2.new(0, 150, 1, -40)
+    tabBar.Position = UDim2.new(0, 0, 0, 40)
+    tabBar.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    tabBar.Parent = mainFrame
+
+    local tabListLayout = Instance.new("UIListLayout")
+    tabListLayout.Padding = UDim.new(0, 5)
+    tabListLayout.FillDirection = Enum.FillDirection.Vertical
+    tabListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    tabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    tabListLayout.Parent = tabBar
+
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Name = "Content"
+    contentFrame.Size = UDim2.new(1, -150, 1, -40)
+    contentFrame.Position = UDim2.new(0, 150, 0, 40)
+    contentFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    contentFrame.Parent = mainFrame
+
+    local window = {
+        tabs = {},
+        currentTab = nil,
+        tabBar = tabBar,
+        contentFrame = contentFrame,
+        mainFrame = mainFrame,
+    }
+
+    function window:Tab(tabName)
+        local tabButton = Instance.new("TextButton")
+        tabButton.Name = tabName
+        tabButton.Size = UDim2.new(1, -10, 0, 35)
+        tabButton.Position = UDim2.new(0, 5, 0, 0)
+        tabButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        tabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+        tabButton.Font = Enum.Font.SourceSansSemibold
+        tabButton.TextSize = 16
+        tabButton.Text = tabName
+        tabButton.Parent = self.tabBar
+
+        local tabContent = Instance.new("Frame")
+        tabContent.Name = tabName .. "Content"
+        tabContent.Size = UDim2.new(1, 0, 1, 0)
+        tabContent.BackgroundTransparency = 1
+        tabContent.Parent = self.contentFrame
+        tabContent.Visible = false
+
+        local contentListLayout = Instance.new("UIListLayout")
+        contentListLayout.Padding = UDim.new(0, 10)
+        contentListLayout.FillDirection = Enum.FillDirection.Vertical
+        contentListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        contentListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        contentListLayout.Parent = tabContent
+
+        tabButton.MouseButton1Click:Connect(function()
+            if self.currentTab then
+                self.currentTab.Visible = false
+            end
+            tabContent.Visible = true
+            self.currentTab = tabContent
+        end)
+        
+        if not self.currentTab then
+            self.currentTab = tabContent
+            self.currentTab.Visible = true
+        end
+
+        local tab = {
+            content = tabContent
+        }
+
+        function tab:Toggle(name, defaultValue, callback)
+            local frame = Instance.new("Frame")
+            frame.Size = UDim2.new(1, -20, 0, 30)
+            frame.BackgroundTransparency = 1
+            frame.Parent = self.content
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, -40, 1, 0)
+            textLabel.Text = name
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.BackgroundTransparency = 1
+            textLabel.Font = Enum.Font.SourceSans
+            textLabel.TextSize = 14
+            textLabel.TextXAlignment = Enum.TextXAlignment.Left
+            textLabel.Parent = frame
+
+            local toggleButton = Instance.new("TextButton")
+            toggleButton.Size = UDim2.new(0, 25, 0, 25)
+            toggleButton.Position = UDim2.new(1, -25, 0.5, -12.5)
+            toggleButton.BackgroundColor3 = defaultValue and Color3.fromRGB(70, 200, 150) or Color3.fromRGB(200, 70, 70)
+            toggleButton.TextColor3 = Color3.new(1, 1, 1)
+            toggleButton.Text = ""
+            toggleButton.Parent = frame
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 5)
+            corner.Parent = toggleButton
+            
+            local toggled = defaultValue
+
+            toggleButton.MouseButton1Click:Connect(function()
+                toggled = not toggled
+                if toggled then
+                    toggleButton.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
+                else
+                    toggleButton.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
+                end
+                if callback then
+                    callback(toggled)
+                end
+            end)
+        end
+        function tab:Button(name, callback)
+            local button = Instance.new("TextButton")
+            button.Size = UDim2.new(1, -20, 0, 30)
+            button.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            button.Font = Enum.Font.SourceSansSemibold
+            button.TextSize = 16
+            button.Text = name
+            button.Parent = self.content
+            
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 5)
+            corner.Parent = button
+
+            if callback then
+                button.MouseButton1Click:Connect(callback)
+            end
+        end
+        function tab:Input(name, placeholder, callback)
+            local frame = Instance.new("Frame")
+            frame.Size = UDim2.new(1, -20, 0, 60)
+            frame.BackgroundTransparency = 1
+            frame.Parent = self.content
+
+            local textLabel = Instance.new("TextLabel")
+            textLabel.Size = UDim2.new(1, 0, 0, 20)
+            textLabel.Text = name
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.BackgroundTransparency = 1
+            textLabel.Font = Enum.Font.SourceSans
+            textLabel.TextSize = 14
+            textLabel.TextXAlignment = Enum.TextXAlignment.Left
+            textLabel.Parent = frame
+
+            local inputbox = Instance.new("TextBox")
+            inputbox.Size = UDim2.new(1, 0, 0, 30)
+            inputbox.Position = UDim2.new(0, 0, 0, 20)
+            inputbox.PlaceholderText = placeholder
+            inputbox.Text = placeholder
+            inputbox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            inputbox.TextColor3 = Color3.fromRGB(255, 255, 255)
+            inputbox.Parent = frame
+
+            local corner = Instance.new("UICorner")
+            corner.CornerRadius = UDim.new(0, 5)
+            corner.Parent = inputbox
+
+            if callback then
+                inputbox.Changed:Connect(function()
+                    callback(inputbox.Text)
+                end)
+            end
+
+            return inputbox
+        end
+
+        return tab
+    end
+
+    return window
 end
 
--- Fungsi beli 1 item saja (cek dulu)
+--// FUNGSI UTAMA UNTUK FITUR AUTO FARM & TELEPORT
 local function buyOnce(itemName)
     if not player.Backpack:FindFirstChild(itemName) and not player.Character:FindFirstChild(itemName) then
         ReplicatedStorage:WaitForChild("RequestItemPurchase"):FireServer(itemName)
     end
 end
 
--------------------------------------------------
--- 1. Auto Fish (Complete Minigame)
-local autoFish = false
-local menuButton1 = createButton("AUTO FISH: OFF", 1)
+-- === Teleport Path ===
+local teleportPoints = {
+	CFrame.new(616.011353, 48.935448, 1069.656982),
+	CFrame.new(1064.870117, 290.573914, 1089.163940),
+	CFrame.new(811.049683, 610.731262, 136.814316),
+	CFrame.new(874.904724, 435.305939, -347.736206),
+	CFrame.new(676.620789, 889.230408, -885.985596),
+	CFrame.new(180.518570, 947.355713, -1215.228516),
+	CFrame.new(-537.126587, 1227.606934, -1117.816162),
+	CFrame.new(60.901371, 1398.623291, -961.813843),
+	CFrame.new(-328.328918, 1408.560547, -589.978333),
+	CFrame.new(-423.375061, 1277.419312, -412.044556),
+	CFrame.new(-387.709045, 1216.978027, -553.854126),
+	CFrame.new(-424.629822, 1172.768921, -545.943359),
+	CFrame.new(-568.202148, 840.997986, -469.531952),
+	CFrame.new(-898.383911, 849.061951, -88.9551239),
+	CFrame.new(-885.043579, 51.763824, 449.432617),
+}
 
-menuButton1.MouseButton1Click:Connect(function()
-    autoFish = not autoFish
-    if autoFish then
-        menuButton1.Text = "AUTO FISH: ON"
-        menuButton1.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
+local function teleportPath(delayTime)
+	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then return end
+	
+	for _, cf in ipairs(teleportPoints) do
+		hrp.CFrame = cf
+		task.wait(delayTime)
+	end
+end
+
+-- === Logika Anti AFK ===
+local antiAFKEnabled = false
+local antiAFKConnection
+
+local function toggleAntiAFK(toggled)
+    antiAFKEnabled = toggled
+    if antiAFKEnabled then
+        if not antiAFKConnection then
+            antiAFKConnection = player.Idled:Connect(function()
+                VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end)
+        end
+    else
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
+            antiAFKConnection = nil
+        end
+    end
+end
+
+--// MEMBUAT GUI MENGGUNAKAN FUNGSI DI ATAS
+local geminiHub = hub:Window()
+local autoFarmTab = geminiHub:Tab("Auto Farm")
+local teleportTab = geminiHub:Tab("Teleport")
+local miscTab = geminiHub:Tab("Misc")
+
+-- 1. Auto Fish
+local autoFish = false
+autoFarmTab:Toggle("Auto Fish", false, function(toggled)
+    autoFish = toggled
+    if toggled then
         task.spawn(function()
             while autoFish do
                 task.wait()
@@ -68,23 +314,14 @@ menuButton1.MouseButton1Click:Connect(function()
                 end
             end
         end)
-    else
-        menuButton1.Text = "AUTO FISH: OFF"
-        menuButton1.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
     end
 end)
 
--------------------------------------------------
 -- 2. Auto Buy Anti Fall
 local autoAntiFall = false
-local menuButton2 = createButton("AUTO BUY ANTI FALL: OFF", 2)
-
-menuButton2.MouseButton1Click:Connect(function()
-    autoAntiFall = not autoAntiFall
-    if autoAntiFall then
-        menuButton2.Text = "AUTO BUY ANTI FALL: ON"
-        menuButton2.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
-        
+autoFarmTab:Toggle("Auto Buy Anti Fall", false, function(toggled)
+    autoAntiFall = toggled
+    if toggled then
         buyOnce("Anti Fall Damage")
         player.CharacterAdded:Connect(function()
             if autoAntiFall then
@@ -92,26 +329,16 @@ menuButton2.MouseButton1Click:Connect(function()
                 buyOnce("Anti Fall Damage")
             end
         end)
-    else
-        menuButton2.Text = "AUTO BUY ANTI FALL: OFF"
-        menuButton2.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
     end
 end)
 
--------------------------------------------------
--- 3. Auto Buy + Use Makan/Minum (Loop setiap 10 detik)
+-- 3. Auto Buy & Use Food/Drink
 local autoBuyFoodDrink = false
-local menuButton3 = createButton("AUTO BUY MAKAN MINUM: OFF", 3)
-
-menuButton3.MouseButton1Click:Connect(function()
-    autoBuyFoodDrink = not autoBuyFoodDrink
-    if autoBuyFoodDrink then
-        menuButton3.Text = "AUTO BUY MAKAN MINUM: ON"
-        menuButton3.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
-        
+autoFarmTab:Toggle("Auto Buy & Use Food/Drink", false, function(toggled)
+    autoBuyFoodDrink = toggled
+    if toggled then
         task.spawn(function()
             while autoBuyFoodDrink do
-                -- Beli dan gunakan Burgerr
                 buyOnce("Burgerr")
                 task.wait(0.5)
                 local burgerr = player.Backpack:FindFirstChild("Burgerr")
@@ -123,7 +350,6 @@ menuButton3.MouseButton1Click:Connect(function()
                     end
                 end
 
-                -- Beli dan gunakan Air Minum
                 buyOnce("Air Minum")
                 task.wait(0.5)
                 local airMinum = player.Backpack:FindFirstChild("Air Minum")
@@ -135,67 +361,47 @@ menuButton3.MouseButton1Click:Connect(function()
                     end
                 end
 
-                -- Jeda 10 detik sebelum loop berikutnya
                 task.wait(480)
             end
         end)
-    else
-        menuButton3.Text = "AUTO BUY MAKAN MINUM: OFF"
-        menuButton3.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
     end
 end)
 
--------------------------------------------------
--- 4. Anti AFK
-local antiAfk = false
-local menuButton4 = createButton("ANTI AFK: OFF", 4)
+-- Tombol TP preset di tab "Teleport"
+teleportTab:Button("TP Finish (1 Detik)", function()
+    teleportPath(1)
+end)
 
-menuButton4.MouseButton1Click:Connect(function()
-    antiAfk = not antiAfk
-    if antiAfk then
-        menuButton4.Text = "ANTI AFK: ON"
-        menuButton4.BackgroundColor3 = Color3.fromRGB(150, 200, 70)
-        player.Idled:Connect(function()
-            if antiAfk then
-                VirtualUser:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-                task.wait(1)
-                VirtualUser:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-            end
-        end)
+teleportTab:Button("TP Finish (0.3 Detik)", function()
+    teleportPath(0.3)
+end)
+
+teleportTab:Button("TP Finish (5 Detik)", function()
+    teleportPath(5)
+end)
+
+local customDelayBox = teleportTab:Input("Custom Delay (detik):", "1", nil)
+teleportTab:Button("Start TP (Custom)", function()
+    local delayTime = tonumber(customDelayBox.Text)
+    if delayTime and delayTime > 0 then
+        teleportPath(delayTime)
     else
-        menuButton4.Text = "ANTI AFK: OFF"
-        menuButton4.BackgroundColor3 = Color3.fromRGB(200, 70, 70)
+        customDelayBox.Text = "Masukkan angka!"
     end
 end)
 
--------------------------------------------------
--- 5. Ambil Pancingan
-local menuButton5 = createButton("AMBIL PANCINGAN", 5)
-local rodName = "NormalRod"
+-- Tombol Anti AFK di tab "Misc"
+miscTab:Toggle("Anti AFK", false, toggleAntiAFK)
 
-menuButton5.MouseButton1Click:Connect(function()
-    local args = {
-        rodName,
-        1
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("BankWithdraw"):FireServer(unpack(args))
+-- Tombol untuk ambil dan simpan pancingan
+miscTab:Button("Ambil Pancingan", function()
+    local args = {"NormalRod", 1}
+    ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("BankWithdraw"):FireServer(unpack(args))
 end)
 
--------------------------------------------------
--- 6. Simpan Pancingan
-local menuButton6 = createButton("SIMPAN PANCINGAN", 6)
-
-menuButton6.MouseButton1Click:Connect(function()
-    local args = {
-        "NormalRod",
-        1
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("TryDepositItem"):InvokeServer(unpack(args))
+miscTab:Button("Simpan Pancingan", function()
+    local args = {"NormalRod", 1}
+    ReplicatedStorage:WaitForChild("RemoteFunctions"):WaitForChild("TryDepositItem"):InvokeServer(unpack(args))
     task.wait(0.5)
-    
-    local args = {
-        "NormalRod",
-        1
-    }
-    game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("BankDeposit"):FireServer(unpack(args))
+    ReplicatedStorage:WaitForChild("RemoteEvents"):WaitForChild("BankDeposit"):FireServer(unpack(args))
 end)
