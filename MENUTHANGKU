@@ -99,7 +99,7 @@ menuButton2.MouseButton1Click:Connect(function()
 end)
 
 -------------------------------------------------
--- 3. Auto Buy + Use Makan/Minum (Loop setiap 480 detik)
+-- 3. Auto Buy + Use Makan/Minum (Loop setiap 10 detik)
 local autoBuyFoodDrink = false
 local menuButton3 = createButton("AUTO BUY MAKAN MINUM: OFF", 3)
 
@@ -111,15 +111,15 @@ menuButton3.MouseButton1Click:Connect(function()
         
         task.spawn(function()
             while autoBuyFoodDrink do
-                -- Beli dan gunakan burgerr
-                buyOnce("burgerr")
+                -- Beli dan gunakan Burgerr
+                buyOnce("Burgerr")
                 task.wait(0.5)
-                local burgerr = player.Backpack:FindFirstChild("burgerr")
-                if burgerr then
-                    burgerr.Parent = player.Character
+                local Burgerr = player.Backpack:FindFirstChild("Burgerr")
+                if Burgerr then
+                    Burgerr.Parent = player.Character
                     task.wait(0.5)
-                    if burgerr:IsA("Tool") then
-                        burgerr:Activate()
+                    if Burgerr:IsA("Tool") then
+                        Burgerr:Activate()
                     end
                 end
 
@@ -136,7 +136,7 @@ menuButton3.MouseButton1Click:Connect(function()
                 end
 
                 -- Jeda 10 detik sebelum loop berikutnya
-                task.wait(480)
+                task.wait(10)
             end
         end)
     else
