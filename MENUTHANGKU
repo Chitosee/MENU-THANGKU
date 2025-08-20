@@ -99,7 +99,7 @@ menuButton2.MouseButton1Click:Connect(function()
 end)
 
 -------------------------------------------------
--- 3. Auto Buy + Use Makan/Minum (Loop setiap 10 detik)
+-- 3. Auto Buy + Use Makan/Minum (Loop setiap 480 detik)
 local autoBuyFoodDrink = false
 local menuButton3 = createButton("AUTO BUY MAKAN MINUM: OFF", 3)
 
@@ -111,32 +111,32 @@ menuButton3.MouseButton1Click:Connect(function()
         
         task.spawn(function()
             while autoBuyFoodDrink do
-                -- Beli dan gunakan Burger
-                buyOnce("Burger")
+                -- Beli dan gunakan burgerr
+                buyOnce("burgerr")
                 task.wait(0.5)
-                local burger = player.Backpack:FindFirstChild("Burger")
-                if burger then
-                    burger.Parent = player.Character
+                local burgerr = player.Backpack:FindFirstChild("burgerr")
+                if burgerr then
+                    burgerr.Parent = player.Character
                     task.wait(0.5)
-                    if burger:IsA("Tool") then
-                        burger:Activate()
+                    if burgerr:IsA("Tool") then
+                        burgerr:Activate()
                     end
                 end
 
-                -- Beli dan gunakan Water
-                buyOnce("Water")
+                -- Beli dan gunakan Air Minum
+                buyOnce("Air Minum")
                 task.wait(0.5)
-                local water = player.Backpack:FindFirstChild("Water")
-                if water then
-                    water.Parent = player.Character
+                local Air Minum = player.Backpack:FindFirstChild("Air Minum")
+                if Air Minum then
+                    Air Minum.Parent = player.Character
                     task.wait(0.5)
-                    if water:IsA("Tool") then
-                        water:Activate()
+                    if Air Minum:IsA("Tool") then
+                        Air Minum:Activate()
                     end
                 end
 
                 -- Jeda 10 detik sebelum loop berikutnya
-                task.wait(10)
+                task.wait(480)
             end
         end)
     else
@@ -169,38 +169,32 @@ menuButton4.MouseButton1Click:Connect(function()
 end)
 
 -------------------------------------------------
--- 5. Auto Farm Ikan (Buy and Use)
-local autoFarmIkan = false
-local menuButton5 = createButton("AUTO FARM IKAN: OFF", 5)
+-- 5. Ambil Pancingan
+local menuButton5 = createButton("AMBIL PANCINGAN", 5)
+local rodName = "NormalRod"
 
 menuButton5.MouseButton1Click:Connect(function()
-    autoFarmIkan = not autoFarmIkan
-    if autoFarmIkan then
-        menuButton5.Text = "AUTO FARM IKAN: ON"
-        menuButton5.BackgroundColor3 = Color3.fromRGB(70, 200, 150)
+    local args = {
+        rodName,
+        1
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("BankWithdraw"):FireServer(unpack(args))
+end)
 
-        local function buyAndUseFish()
-            buyOnce("Fish")
-            task.wait(0.5)
-            local ikan = player.Backpack:FindFirstChild("Fish")
-            if ikan then
-                ikan.Parent = player.Character
-                task.wait(0.5)
-                if ikan:IsA("Tool") then
-                    ikan:Activate()
-                end
-            end
-        end
+-------------------------------------------------
+-- 6. Simpan Pancingan
+local menuButton6 = createButton("SIMPAN PANCINGAN", 6)
 
-        buyAndUseFish()
-        player.CharacterAdded:Connect(function()
-            if autoFarmIkan then
-                task.wait(1)
-                buyAndUseFish()
-            end
-        end)
-    else
-        menuButton5.Text = "AUTO FARM IKAN: OFF"
-        menuButton5.BackgroundColor3 = Color3.fromRGB(200, 70, 150)
-    end
+menuButton6.MouseButton1Click:Connect(function()
+    local args = {
+        "NormalRod",
+        1
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("TryDepositItem"):InvokeServer(unpack(args))
+    task.wait(0.5)
+    local args = {
+        "NormalRod",
+        1
+    }
+    game:GetService("ReplicatedStorage"):WaitForChild("RemoteEvents"):WaitForChild("BankDeposit"):FireServer(unpack(args))
 end)
