@@ -136,7 +136,7 @@ menuButton3.MouseButton1Click:Connect(function()
                 end
 
                 -- Jeda 10 detik sebelum loop berikutnya
-                task.wait(10)
+                task.wait(480)
             end
         end)
     else
