@@ -114,24 +114,24 @@ menuButton3.MouseButton1Click:Connect(function()
                 -- Beli dan gunakan Burgerr
                 buyOnce("Burgerr")
                 task.wait(0.5)
-                local Burgerr = player.Backpack:FindFirstChild("Burgerr")
-                if Burgerr then
-                    Burgerr.Parent = player.Character
+                local burgerr = player.Backpack:FindFirstChild("Burgerr")
+                if burgerr then
+                    burgerr.Parent = player.Character
                     task.wait(0.5)
-                    if Burgerr:IsA("Tool") then
-                        Burgerr:Activate()
+                    if burgerr:IsA("Tool") then
+                        burgerr:Activate()
                     end
                 end
 
-                -- Beli dan gunakan Air Minum
-                buyOnce("Air Minum")
+                -- Beli dan gunakan Water
+                buyOnce("Water")
                 task.wait(0.5)
-                local Air Minum = player.Backpack:FindFirstChild("Air Minum")
-                if Air Minum then
-                    Air Minum.Parent = player.Character
+                local water = player.Backpack:FindFirstChild("Water")
+                if water then
+                    water.Parent = player.Character
                     task.wait(0.5)
-                    if Air Minum:IsA("Tool") then
-                        Air Minum:Activate()
+                    if water:IsA("Tool") then
+                        water:Activate()
                     end
                 end
 
@@ -192,6 +192,7 @@ menuButton6.MouseButton1Click:Connect(function()
     }
     game:GetService("ReplicatedStorage"):WaitForChild("RemoteFunctions"):WaitForChild("TryDepositItem"):InvokeServer(unpack(args))
     task.wait(0.5)
+    
     local args = {
         "NormalRod",
         1
