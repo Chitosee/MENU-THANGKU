@@ -49,7 +49,7 @@ function hub:Window()
     titleLabel.Font = Enum.Font.SourceSansBold
     titleLabel.TextSize = 20
     titleLabel.Parent = topBar
-    
+
     -- Efek warna-warni untuk judul
     task.spawn(function()
         while titleLabel.Parent do
@@ -122,7 +122,7 @@ function hub:Window()
             tabContent.Visible = true
             self.currentTab = tabContent
         end)
-        
+
         if not self.currentTab then
             self.currentTab = tabContent
             self.currentTab.Visible = true
@@ -159,9 +159,8 @@ function hub:Window()
             local corner = Instance.new("UICorner")
             corner.CornerRadius = UDim.new(0, 5)
             corner.Parent = toggleButton
-            
-            local toggled = defaultValue
 
+            local toggled = defaultValue
             toggleButton.MouseButton1Click:Connect(function()
                 toggled = not toggled
                 if toggled then
@@ -174,6 +173,7 @@ function hub:Window()
                 end
             end)
         end
+
         function tab:Button(name, callback)
             local button = Instance.new("TextButton")
             button.Size = UDim2.new(1, -20, 0, 30)
@@ -183,7 +183,7 @@ function hub:Window()
             button.TextSize = 16
             button.Text = name
             button.Parent = self.content
-            
+
             local corner = Instance.new("UICorner")
             corner.CornerRadius = UDim.new(0, 5)
             corner.Parent = button
@@ -192,6 +192,7 @@ function hub:Window()
                 button.MouseButton1Click:Connect(callback)
             end
         end
+
         function tab:Input(name, placeholder, callback)
             local frame = Instance.new("Frame")
             frame.Size = UDim2.new(1, -20, 0, 60)
@@ -226,13 +227,11 @@ function hub:Window()
                     callback(inputbox.Text)
                 end)
             end
-
             return inputbox
         end
 
         return tab
     end
-
     return window
 end
 
@@ -245,45 +244,44 @@ end
 
 -- === Teleport Path ===
 local teleportPoints = {
-	CFrame.new(616.011353, 48.935448, 1069.656982),
-	CFrame.new(1064.870117, 290.573914, 1089.163940),
-	CFrame.new(811.049683, 610.731262, 136.814316),
-	CFrame.new(874.904724, 435.305939, -347.736206),
-	CFrame.new(676.620789, 889.230408, -885.985596),
-	CFrame.new(180.518570, 947.355713, -1215.228516),
-	CFrame.new(-537.126587, 1227.606934, -1117.816162),
-	CFrame.new(60.901371, 1398.623291, -961.813843),
-	CFrame.new(-328.328918, 1408.560547, -589.978333),
-	CFrame.new(-423.375061, 1277.419312, -412.044556),
-	CFrame.new(-387.709045, 1216.978027, -553.854126),
-	CFrame.new(-424.629822, 1172.768921, -545.943359),
-	CFrame.new(-568.202148, 840.997986, -469.531952),
-	CFrame.new(-898.383911, 849.061951, -88.9551239),
-	CFrame.new(-885.043579, 51.763824, 449.432617),
+    CFrame.new(616.011353, 48.935448, 1069.656982),
+    CFrame.new(1064.870117, 290.573914, 1089.163940),
+    CFrame.new(811.049683, 610.731262, 136.814316),
+    CFrame.new(874.904724, 435.305939, -347.736206),
+    CFrame.new(676.620789, 889.230408, -885.985596),
+    CFrame.new(180.518570, 947.355713, -1215.228516),
+    CFrame.new(-537.126587, 1227.606934, -1117.816162),
+    CFrame.new(60.901371, 1398.623291, -961.813843),
+    CFrame.new(-328.328918, 1408.560547, -589.978333),
+    CFrame.new(-423.375061, 1277.419312, -412.044556),
+    CFrame.new(-387.709045, 1216.978027, -553.854126),
+    CFrame.new(-424.629822, 1172.768921, -545.943359),
+    CFrame.new(-568.202148, 840.997986, -469.531952),
+    CFrame.new(-898.383911, 849.061951, -88.9551239),
+    CFrame.new(-885.043579, 51.763824, 449.432617),
 }
 
 local function teleportPath(delayTime)
-	local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-	if not hrp then return end
-	
-	for _, cf in ipairs(teleportPoints) do
-		hrp.CFrame = cf
-		task.wait(delayTime)
-	end
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    for _, cf in ipairs(teleportPoints) do
+        hrp.CFrame = cf
+        task.wait(delayTime)
+    end
 end
 
 -- === Logika Anti AFK ===
 local antiAFKEnabled = false
 local antiAFKConnection
-
 local function toggleAntiAFK(toggled)
     antiAFKEnabled = toggled
     if antiAFKEnabled then
         if not antiAFKConnection then
             antiAFKConnection = player.Idled:Connect(function()
-                VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                VirtualUser:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
                 task.wait(1)
-                VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                VirtualUser:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
             end)
         end
     else
@@ -299,6 +297,34 @@ local geminiHub = hub:Window()
 local autoFarmTab = geminiHub:Tab("Auto Farm")
 local teleportTab = geminiHub:Tab("Teleport")
 local miscTab = geminiHub:Tab("Misc")
+
+-- Variabel untuk mengontrol auto loop teleport
+local autoTeleportEnabled = false
+local autoTeleportDelay = 1 -- Nilai default
+local teleportLoopThread = nil
+
+-- Fungsi untuk memulai loop teleport
+local function startTeleportLoop()
+    -- Hentikan loop yang sedang berjalan jika ada
+    if teleportLoopThread then
+        task.cancel(teleportLoopThread)
+    end
+
+    local delayTime = tonumber(customDelayBox.Text)
+    if delayTime and delayTime > 0 then
+        autoTeleportDelay = delayTime
+    else
+        autoTeleportDelay = 1
+        customDelayBox.Text = "1"
+    end
+
+    teleportLoopThread = task.spawn(function()
+        while autoTeleportEnabled do
+            teleportPath(autoTeleportDelay)
+            task.wait(2)
+        end
+    end)
+end
 
 -- 1. Auto Fish
 local autoFish = false
@@ -322,11 +348,23 @@ local autoAntiFall = false
 autoFarmTab:Toggle("Auto Buy Anti Fall", false, function(toggled)
     autoAntiFall = toggled
     if toggled then
-        buyOnce("Anti Fall Damage")
+        -- Fungsi untuk membeli dan memakai Anti Fall Damage
+        local function buyAndUseAntiFall()
+            buyOnce("Anti Fall Damage")
+            task.wait(1)
+            local antiFallTool = player.Backpack:FindFirstChild("Anti Fall Damage") or player.Character:FindFirstChild("Anti Fall Damage")
+            if antiFallTool and antiFallTool:IsA("Tool") then
+                antiFallTool.Parent = player.Character -- Masukkan ke karakter
+                task.wait(0.5) -- Beri sedikit jeda
+                antiFallTool:Activate() -- Aktifkan tool-nya
+            end
+        end
+
+        buyAndUseAntiFall() -- Beli dan pakai saat toggle dihidupkan
         player.CharacterAdded:Connect(function()
             if autoAntiFall then
                 task.wait(1)
-                buyOnce("Anti Fall Damage")
+                buyAndUseAntiFall() -- Beli dan pakai lagi saat respawn
             end
         end)
     end
@@ -381,12 +419,33 @@ teleportTab:Button("TP Finish (5 Detik)", function()
 end)
 
 local customDelayBox = teleportTab:Input("Custom Delay (detik):", "1", nil)
+
 teleportTab:Button("Start TP (Custom)", function()
     local delayTime = tonumber(customDelayBox.Text)
     if delayTime and delayTime > 0 then
         teleportPath(delayTime)
     else
         customDelayBox.Text = "Masukkan angka!"
+    end
+end)
+
+-- Tombol on/off untuk auto loop teleport
+teleportTab:Toggle("Auto Loop TP", false, function(toggled)
+    autoTeleportEnabled = toggled
+    if toggled then
+        startTeleportLoop()
+    else
+        if teleportLoopThread then
+            task.cancel(teleportLoopThread)
+        end
+    end
+end)
+
+-- Hubungkan auto loop teleport ke event respawn
+player.CharacterAdded:Connect(function(character)
+    if autoTeleportEnabled then
+        task.wait(2) -- Jeda 2 detik setelah respawn
+        startTeleportLoop()
     end
 end)
 
